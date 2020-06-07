@@ -1,149 +1,160 @@
 import random
-from clases_accesorias import Images, Fonts
-import time
+from slotmachine import SlotMachine
 import pygame
 from pygame.locals import *
 
-try:
-   f = open("dificultad.txt", 'r')
-   dificultad = int(f.read(4))
-   # perform file operations
-finally:
-   f.close()
-
-print(dificultad)
-
-BACKGROUND_IMAGE = "images/logo.png"
-FRAME_RATE = 10
-GAME_TITLE = "Via 25 - El juego"
-size = width, height = 1200, 700
-
+pygame.mixer.init()
+pygame.mixer.music.load("sounds/back.mp3")
 pygame.init()
 
-# Set the game clock
-clock = pygame.time.Clock()
+f = open("dificultad.txt", 'r')
+dificultad = int(f.read())
+f.close()
 
-class SlotMachine:
+slot = SlotMachine(1200, 700, "Via 25 - HELADOS")
+pygame.display.set_caption(slot.game_title)
 
-    def __init__(self):
-        # Set all the sounds
-        pygame.mixer.init()
-        
-        pygame.mixer.set_num_channels(2)
-        self.bet_snd = pygame.mixer.Sound("sounds/bet_snd.wav")
-        self.spin_snd = pygame.mixer.Sound("sounds/spin_snd.ogg")
-        self.spinning_snd = pygame.mixer.Sound("sounds/spinning_snd.ogg")
-        self.bg_music = pygame.mixer.Sound("sounds/background_msc.wav")
-        self.screen = pygame.display.set_mode(size, FULLSCREEN) #FULLSCREEN
+start = True # Only True in the intro
+waiting = True # This show "JUGAR"
+x = 325 # First ice cream position
+y = 200 # Ice cream position
+play = 0 # This is so that you can stop the ice cream individually
+counter = 0 # Count the times the ice creams spin
+speed = 8 # How fast the ice creams spin
 
-        # Start and background logo via 25 & demas
-        #self.startimage = Images(BACKGROUND_IMAGE, [width/2, height/2])
-        #self.demas_logo = Images("./images/demas_logo.png", [width / 2, height / 2])
-
-        #Load and resize background
-        self.background = Images(BACKGROUND_IMAGE, [1000, 525], True, (200, 200))
-
-        # List of images for the slots
-        self.images = []
-        self.images.append(Images("images/img.png", [(width/2)+350, height/2], True, (150, 150)))
-        self.images.append(Images("images/img1.png", [(width/2)+350, height/2], True, (150, 150)))
-        self.images.append(Images("images/img2.png", [(width / 2) + 350, height / 2], True, (150, 150)))
-        self.images.append(Images("images/img3.png", [(width / 2) + 350, height / 2], True, (150, 150)))
-        self.images.append(Images("images/img4.png", [(width / 2) + 350, height / 2], True, (150, 150)))
-        self.images.append(Images("images/img5.png", [(width / 2) + 350, height / 2], True, (150, 150)))
-
-        # Slots images
-        self.rect1 = Images("images/slot.JPG", ((width/2)-350, height/2), True, (300, 500))
-        self.rect2 = Images("images/slot.JPG", ((width/2), height/2), True, (300, 500))
-        self.rect3 = Images("images/slot.JPG", ((width/2)+350, height/2), True, (300, 500))
-
-        # Fonts
-        self.play_font = Fonts("./fonts/font.ttf", "JUGAR", 200, (0, 0, 0), (width/2, height/2))
-        self.one_font = Fonts("./fonts/font.ttf", "Mas suerte la próxima :(", 70, (0, 0, 0), (200, 500))
-        self.two_font = Fonts("./fonts/font.ttf", "Acertaste dos. faltó poco.", 70, (0, 0, 0), (200, 500))
-        self.three_font = Fonts("./fonts/font.ttf", "GANASTE! Felicitaciones", 70, (0, 0, 0), (200, 500))
-
-        # Results of spinning
-        self.results = [1,2,3]
-
-    def get_spin(self, difficult=100):
-        for i in range(3):
-            # Save the wildcard number as spinned_result
-            spinned_result = random.randint(0, difficult)
-
-            if spinned_result in range(0, 20):
-                self.results[i] = self.images[0]
-            elif spinned_result in range(21, 40):
-                self.results[i] = self.images[1]
-            elif spinned_result in range(41, 60):
-                self.results[i] = self.images[2]
-            elif spinned_result in range(61, 82):
-                self.results[i] = self.images[3]
-            elif spinned_result in range(83, 100):
-                self.results[i] = self.images[4]
-            elif spinned_result in range(89, 95):
-                self.results[i] = self.images[5]
-    
-    def roll_spin(self):
-        t_end = time.time() + 1
-        while time.time() < t_end:
-            for image in self.images:
-                self.screen.fill([255, 255, 255])
-                self.screen.blit(slot.rect1.image, slot.rect1.rect)
-                self.screen.blit(slot.rect2.image, slot.rect2.rect)
-                self.screen.blit(slot.rect3.image, slot.rect3.rect)
-                self.screen.blit(image.image, slot.rect1.corner)
-                self.screen.blit(image.image, slot.rect2.corner)
-                self.screen.blit(image.image, slot.rect3.corner)
-                pygame.display.update()
-                pygame.time.wait(100)
-        self.screen.blit(slot.rect1.image, slot.rect1.rect)
-        self.screen.blit(self.results[0].image, slot.rect1.corner)
-        t_end1 = time.time() + 1
-        while time.time() < t_end1:
-            for image in self.images:
-                self.screen.blit(image.image, slot.rect2.corner)
-                self.screen.blit(image.image, slot.rect3.corner)
-                pygame.display.update()
-                pygame.time.wait(100)
-                self.screen.blit(slot.rect2.image, slot.rect2.rect)
-                self.screen.blit(slot.rect3.image, slot.rect3.rect)
-                pygame.display.update()
-        self.screen.blit(self.results[1].image, slot.rect2.corner)
-        t_end3 = time.time() + 1
-        while time.time() < t_end3:
-            for image in self.images:
-                self.screen.blit(image.image, slot.rect3.corner)
-                pygame.display.update()
-                pygame.time.wait(100)
-                self.screen.blit(slot.rect3.image, slot.rect3.rect)
-                pygame.display.update()
-            self.screen.blit(self.results[2].image, slot.rect3.corner)
-            pygame.display.update()
-            
-
-slot = SlotMachine()
-start = 1
+pos_wx = 150 # This positions are used to the "waiting ice creams movement" and confetti effect
+pos_wy = -150
 
 while 1:
-    if start == 0:
+    if start: # Presentation: logos.
         slot.screen.fill([255, 255, 255])
-        #slot.screen.blit(slot.startimage.image, slot.startimage.rect)
+        slot.screen.blit(slot.startimage.image, slot.startimage.rect)
         pygame.display.update()
-        pygame.time.wait(4000)
+        pygame.time.wait(1000)
         slot.screen.fill([255, 255, 255])
-        #slot.screen.blit(slot.demas_logo.image, slot.demas_logo.rect)
+        slot.screen.blit(slot.demas_logo.image, slot.demas_logo.rect)
         pygame.display.update()
-        pygame.time.wait(4000)
-        start = 0
+        pygame.time.wait(1000)
+        start = False
 
-    pygame.display.update()
-    slot.screen.fill([255, 255, 255])
-    slot.screen.blit(slot.play_font.fonts, slot.play_font.rect)
-    #slot.screen.blit(slot.background.image, slot.background.rect)
-    #slot.bg_music.play()
-    slot.get_spin(dificultad)
+        # Background music
+        pygame.mixer.music.play(-1)
 
+        # Choice aleatory the images to show in waiting screen
+        i0, i1, i2 = random.randint(0, 5), random.randint(0, 5), random.randint(0, 5)
+
+    if waiting: # Screen before press ENTER and play
+        slot.get_spin(dificultad)
+        pos_wy += 1
+        slot.screen.fill([255,255,255])
+        slot.screen.blit(slot.play_font.fonts, slot.play_font.rect)
+        slot.screen.blit(slot.images[i0].image, (pos_wx, pos_wy))
+        slot.screen.blit(slot.images[i1].image, (pos_wx+400, pos_wy))
+        slot.screen.blit(slot.images[i2].image, (pos_wx+800, pos_wy))
+        pygame.time.delay(3)
+        pygame.display.update()
+        if pos_wy > slot.screen_size[1]: # Up the images of the three ice creams
+            pos_wy = -150
+            i0, i1, i2 = random.randint(0, 5), random.randint(0, 5), random.randint(0, 5)
+
+    if play == 1 and counter != 6: # The spinning of ice cream, but not the choiced
+        y += speed
+        slot.screen.fill([255, 255, 255])
+        slot.screen.blit(slot.images[i0].image, (x, y))
+        slot.screen.blit(slot.images[i1].image, (x+225, y))
+        slot.screen.blit(slot.images[i2].image, (x+450, y))
+        slot.screen.blit(slot.machine.image, (0,0))
+        pygame.display.update()
+    elif counter == 6 and y < 315: # This is so that the choiced is also shown going down
+        y += speed-3
+        slot.screen.fill([255, 255, 255])
+        slot.screen.blit(slot.results[0].image, (x, y))
+        slot.screen.blit(slot.images[i1].image, (x+225, y))
+        slot.screen.blit(slot.images[i2].image, (x+450, y))
+        slot.screen.blit(slot.machine.image, (0,0))
+        pygame.display.update()
+
+    elif play == 2 and counter != 10: # same above
+        y += speed
+        slot.screen.fill([255, 255, 255])
+        slot.screen.blit(slot.results[0].image, (x, 325))
+        slot.screen.blit(slot.images[i1].image, (x+225, y))
+        slot.screen.blit(slot.images[i2].image, (x+450, y))
+        slot.screen.blit(slot.machine.image, (0,0))
+        pygame.display.update()
+    elif counter == 10 and y < 315: # same above
+        y += speed-3
+        slot.screen.fill([255, 255, 255])
+        slot.screen.blit(slot.results[0].image, (x, 325))
+        slot.screen.blit(slot.results[1].image, (x+225, y))
+        slot.screen.blit(slot.images[i2].image, (x+450, y))
+        slot.screen.blit(slot.machine.image, (0,0))
+        pygame.display.update()
+    elif play == 3 and counter != 12: # same
+        y += speed
+        slot.screen.fill([255, 255, 255])
+        slot.screen.blit(slot.results[0].image, (x, 325))
+        slot.screen.blit(slot.results[1].image, (x+225, 325))
+        slot.screen.blit(slot.images[i2].image, (x+450, y))
+        slot.screen.blit(slot.machine.image, (0,0))
+        pygame.display.update()
+    elif counter == 12 and y < 315: # same
+        y += speed-4
+        slot.screen.fill([255, 255, 255])
+        slot.screen.blit(slot.results[0].image, (x, 325))
+        slot.screen.blit(slot.results[1].image, (x+225, 325))
+        slot.screen.blit(slot.results[2].image, (x+450, y))
+        slot.screen.blit(slot.machine.image, (0,0))
+        pygame.display.update()
+    # Here check the results
+    elif play == 4: 
+        if slot.results[0] == slot.results[1] and slot.results[1] == slot.results[2]:
+            pos_wy += speed+10
+            slot.screen.fill([255, 255, 255])
+            slot.screen.blit(slot.results[0].image, (x, 325))
+            slot.screen.blit(slot.results[1].image, (x+225, 325))
+            slot.screen.blit(slot.results[2].image, (x+450, 325))
+            slot.screen.blit(slot.machine.image, (0, 0))
+            slot.screen.blit(slot.confeti_image.image, (0,pos_wy-1409)) #Show the confetti
+            slot.screen.blit(slot.confeti_image.image, (0,pos_wy))
+            slot.screen.blit(slot.three_font.fonts, (0, 1000))
+            pygame.display.update()
+            # Confetti movement
+            if pos_wy > slot.screen_size[1]: #[1] is heigth
+                counter += 1
+                pos_wy = -slot.screen_size[1]
+                if counter == 15:
+                    play = 0
+                    counter = 0
+                    waiting = 1
+                    pos_wy = 0
+        elif slot.results[0] == slot.results[1] or slot.results[1] == slot.results[2]  or slot.results[0] == slot.results[2]:
+            slot.screen.blit(slot.two_font.fonts, (0, 1000))
+            pygame.display.update()
+            pygame.time.delay(2000)
+            # Reset al the values to play again
+            play = 0
+            counter = 0
+            waiting = True
+        else:
+            slot.screen.blit(slot.one_font.fonts, (0, 1000))
+            pygame.display.update()
+            pygame.time.delay(2000)
+            # Reset al the values to play again
+            play = 0
+            counter = 0
+            waiting = True
+    # Here count the times the ice creams spins   
+    if y > 450:
+        counter += 1
+        y = 200
+        i0, i1, i2 = random.randint(0, 5), random.randint(0, 5), random.randint(0, 5)
+        if counter == 6:
+            play += 1 # Stop the first ice cream
+        elif counter == 10:
+            play += 1 # Stop the second ice cream
+        elif counter == 12:
+            play += 1 # Stop the third ice cream and next show the results
 
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -152,14 +163,8 @@ while 1:
             if event.key == K_ESCAPE:
                 exit()
             if event.key == K_RETURN:
-                slot.roll_spin()
-                if slot.results[0] == slot.results[1] and slot.results[1] == slot.results[2]:
-                    slot.screen.blit(slot.three_font.fonts, slot.rect1.rect.bottomleft)
-                    pygame.display.update()
-                elif slot.results[0] == slot.results[1] or slot.results[1] == slot.results[2]  or slot.results[0] == slot.results[2]:
-                    slot.screen.blit(slot.two_font.fonts, slot.rect1.rect.bottomleft)
-                    pygame.display.update()
-                else:
-                    slot.screen.blit(slot.one_font.fonts, slot.rect1.rect.bottomleft)
-                    pygame.display.update()
-                pygame.time.wait(2000)
+                # slot.spinning_snd.play(-1)
+                if play == 0: # You can play only you are in the waiting area
+                    random.shuffle(slot.images)
+                    waiting = False
+                    play +=1
