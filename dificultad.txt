@@ -1,9 +1,1 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-50
-=======
 1
->>>>>>> lastchanges
-=======
-1
->>>>>>> lastchanges
